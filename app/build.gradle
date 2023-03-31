@@ -93,5 +93,6 @@ dependencies {
     // Timber
     implementation "com.jakewharton.timber:timber:5.0.1"
 
-
+    // QRCode
+    implementation 'com.github.alexzhirkevich:custom-qr-generator:1.6.1'
 }
