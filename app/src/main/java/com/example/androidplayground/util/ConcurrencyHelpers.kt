@@ -23,6 +23,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.yield
+import timber.log.Timber
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.DeprecationLevel.ERROR
 
@@ -223,6 +224,7 @@ class ControlledRunner<T> {
             // When newTask completes, ensure that it resets activeTask to null (if it was the
             // current activeTask).
             newTask.invokeOnCompletion {
+                Timber.d("active task 值 在invokeOnCompletion： ${activeTask.get()}， it为： $it")
                 activeTask.compareAndSet(newTask, null)
             }
 
@@ -235,6 +237,7 @@ class ControlledRunner<T> {
             while(true) {
                 if (activeTask.compareAndSet(null, newTask)) {
                     // happy path - we set activeTask so we are ready to run newTask
+                    Timber.d("active task 值 在compareAndSet后： ${activeTask.get()}")
                     result = newTask.await()
                     break
                 } else {
