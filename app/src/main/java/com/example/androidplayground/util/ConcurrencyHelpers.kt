@@ -233,7 +233,11 @@ class ControlledRunner<T> {
             // Loop until we are sure that newTask is ready to execute (all previous tasks are
             // cancelled)
             while(true) {
-                if (!activeTask.compareAndSet(null, newTask)) {
+                if (activeTask.compareAndSet(null, newTask)) {
+                    // happy path - we set activeTask so we are ready to run newTask
+                    result = newTask.await()
+                    break
+                } else {
                     // some other task started before newTask got set to activeTask, so see if it's
                     // still running when we call get() here. If so, we can cancel it.
 
@@ -242,10 +246,6 @@ class ControlledRunner<T> {
                     activeTask.get()?.cancelAndJoin()
                     // yield here to avoid a possible tight loop on a single threaded dispatcher
                     yield()
-                } else {
-                    // happy path - we set activeTask so we are ready to run newTask
-                    result = newTask.await()
-                    break
                 }
             }
 
@@ -306,7 +306,12 @@ class ControlledRunner<T> {
             // Loop until we figure out if we need to run newTask, or if there is a task that's
             // already running we can join.
             while(true) {
-                if (!activeTask.compareAndSet(null, newTask)) {
+                if (activeTask.compareAndSet(null, newTask)) {
+                    // happy path - we were able to set activeTask, so start newTask and return its
+                    // result
+                    result = newTask.await()
+                    break
+                } else {
                     // some other task started before newTask got set to activeTask, so see if it's
                     // still running when we call get() here. There is a chance that it's already
                     // been completed before the call to get, in which case we need to start the
@@ -325,11 +330,6 @@ class ControlledRunner<T> {
                         // like Dispatchers.Main to allow other work to happen.
                         yield()
                     }
-                } else {
-                    // happy path - we were able to set activeTask, so start newTask and return its
-                    // result
-                    result = newTask.await()
-                    break
                 }
             }
 
