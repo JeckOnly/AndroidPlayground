@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                AppEventCenter.subscribe<String>{
+                AppEventCenter.subscribeLatest<String>{
                     delay(3000)
                     Timber.d("收到: $it")
                 }
