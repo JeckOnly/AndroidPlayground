@@ -33,4 +33,12 @@ object AppEventCenter {
             observeCallback(it as T)
         }.collect()
     }
+
+    suspend inline fun <reified T : Any> subscribeLatest(crossinline observeCallback: suspend (T) -> Unit) {
+        shareFlow.filter {
+            it is T
+        }.collectLatest {
+            observeCallback(it as T)
+        }
+    }
 }
