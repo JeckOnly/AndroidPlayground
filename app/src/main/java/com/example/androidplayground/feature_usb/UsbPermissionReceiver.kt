@@ -17,6 +17,7 @@ import android.widget.Toast
 class UsbPermissionReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent?) {
         if (ACTION == intent?.action) {
+
             synchronized(this) {
                 val device: UsbDevice? = intent.getUsbDevice()
 
